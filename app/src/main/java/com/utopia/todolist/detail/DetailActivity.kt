@@ -21,6 +21,9 @@ class DetailActivity : AppCompatActivity() {
             return intent.getIntExtra(EXTRA_TASK_ID, ID_INVALID)
         }
 
+    private lateinit var etTitle: EditText
+    private lateinit var etContent: EditText
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_detail)
@@ -45,24 +48,9 @@ class DetailActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    private lateinit var etTitle: EditText
-
-    private lateinit var etContent: EditText
     private fun initView() {
         etTitle = findViewById(R.id.et_title)
         etContent = findViewById(R.id.et_content)
-    }
-
-    private fun saveInput() {
-        val title = etTitle.text.toString()
-        val content = etContent.text.toString()
-        if (!Content(title, content).valid()) {
-            Toast.makeText(this, "内容不合法", Toast.LENGTH_SHORT).show()
-            return
-        }
-        val task = Task(itemId, title, content)
-        dataSource.updateTask(task)
-        finish()
     }
 
     private fun fetchData(taskId: Int) {
@@ -84,9 +72,21 @@ class DetailActivity : AppCompatActivity() {
         etContent.setText(task.content)
     }
 
+    private fun saveInput() {
+        val title = etTitle.text.toString().trim()
+        val content = etContent.text.toString().trim()
+        if (!Content(title, content).valid()) {
+            Toast.makeText(this, "内容不合法", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val task = Task(itemId, title, content)
+        dataSource.updateTask(task)
+        finish()
+    }
+
     companion object {
-        const val EXTRA_TASK_ID = "extra_task_id";
-        const val ID_INVALID = -1;
+        const val EXTRA_TASK_ID = "extra_task_id"
+        const val ID_INVALID = -1
 
         private data class Content(val title: String, val content: String) {
             fun valid(): Boolean {
