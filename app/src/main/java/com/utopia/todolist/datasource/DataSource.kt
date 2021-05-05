@@ -27,6 +27,7 @@ class DataSource private constructor() : IDataSource {
     }
 
     override fun updateTask(task: Task): Int {
+        checkThread()
         val set = lazyTaskList.value
         if (task.id < 0) {
             return insertTask(task.name, task.content)
@@ -42,12 +43,18 @@ class DataSource private constructor() : IDataSource {
     }
 
     override fun insertTask(name: String, content: String): Int {
+        checkThread()
         val set = lazyTaskList.value
         val max = set.map(Task::id).max()
         val id = (max ?: -1) + 1
         val task = Task(id, name, content)
         set.add(task)
         return id
+    }
+
+    override fun deleteTask(taskId: Int): Boolean {
+        checkThread()
+        return lazyTaskList.value.removeIf { taskId == it.id }
     }
 
     private fun checkThread() {

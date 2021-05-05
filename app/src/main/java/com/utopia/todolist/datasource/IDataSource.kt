@@ -5,4 +5,5 @@ interface IDataSource {
     fun queryTaskById(taskId: Int): Task?
     fun updateTask(task: Task): Int
     fun insertTask(name: String, content: String): Int
+    fun deleteTask(taskId: Int):Boolean
 }

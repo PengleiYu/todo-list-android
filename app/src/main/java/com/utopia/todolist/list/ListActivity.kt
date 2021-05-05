@@ -6,6 +6,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.utopia.todolist.R
 import com.utopia.todolist.datasource.DataSource
@@ -59,8 +61,35 @@ class ListActivity : AppCompatActivity() {
             val item = beans[position]
             openDetailPage(item.id)
         }
+        listView.setOnItemLongClickListener { parent, view, position, id ->
+            val bean = beans[position]
+            AlertDialog.Builder(this)
+                .setTitle("删除该任务")
+                .setMessage(bean.title)
+                .setPositiveButton("OK") { dialog, which ->
+                    deleteTask(bean.id)
+                }
+                .setNegativeButton("NO") { dialog, which ->
+                }
+                .show()
+            true
+        }
         val adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list)
         listView.adapter = adapter
+    }
+
+    private fun deleteTask(taskId: Int) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val success = dataSource.deleteTask(taskId)
+            GlobalScope.launch(Dispatchers.Main) main@{
+                if (!success) {
+                    val msg = "删除失败: id=${taskId}"
+                    Toast.makeText(applicationContext, msg, Toast.LENGTH_SHORT).show()
+                    return@main
+                }
+                fetchData()
+            }
+        }
     }
 
     private fun openDetailPage(taskId: Int? = -1) {

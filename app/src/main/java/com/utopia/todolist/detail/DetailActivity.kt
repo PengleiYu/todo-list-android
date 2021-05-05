@@ -80,8 +80,17 @@ class DetailActivity : AppCompatActivity() {
             return
         }
         val task = Task(itemId, title, content)
-        dataSource.updateTask(task)
-        finish()
+        GlobalScope.launch(Dispatchers.IO) {
+            val id = dataSource.updateTask(task)
+            GlobalScope.launch(Dispatchers.Main) main@{
+                if (id < 0) {
+                    val msg = "update task fail"
+                    Toast.makeText(application, msg, Toast.LENGTH_SHORT).show()
+                    return@main
+                }
+                finish()
+            }
+        }
     }
 
     companion object {
