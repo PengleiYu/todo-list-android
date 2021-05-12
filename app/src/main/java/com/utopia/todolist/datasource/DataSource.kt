@@ -2,6 +2,7 @@ package com.utopia.todolist.datasource
 
 import android.os.Looper
 import androidx.annotation.WorkerThread
+import com.utopia.todolist.datasource.sp.SP
 import com.utopia.todolist.debugCheck
 
 @WorkerThread
@@ -10,51 +11,54 @@ class DataSource private constructor() : IDataSource {
         val instance = DataSource()
     }
 
-    private val lazyTaskList = lazy {
-        (0..10)
-            .map { Task(it, "name${it}", "content${it}") }
-            .toMutableSet()
-    }
+    private val sp = SP()
 
     override fun queryTaskList(): Set<Task> {
         checkThread()
-        return lazyTaskList.value
+        return sp.getTasks().toSet()
     }
 
     override fun queryTaskById(taskId: Int): Task? {
         checkThread()
-        return lazyTaskList.value.firstOrNull { taskId == it.id }
+        return sp.getTasks().firstOrNull { taskId == it.id }
     }
 
     override fun updateTask(task: Task): Int {
         checkThread()
-        val set = lazyTaskList.value
         if (task.id < 0) {
             return insertTask(task.name, task.content)
         }
 
+        val set = sp.getTasks(true).toMutableSet()
         val old = set.firstOrNull { task.id == it.id }
         if (old != null) {
             set.remove(old)
         }
         val new = task.copy()
         set.add(new)
+        sp.setTasks(set).flush()
         return new.id
     }
 
     override fun insertTask(name: String, content: String): Int {
         checkThread()
-        val set = lazyTaskList.value
+        val set = sp.getTasks(true).toMutableSet()
         val max = set.map(Task::id).max()
         val id = (max ?: -1) + 1
         val task = Task(id, name, content)
         set.add(task)
+        sp.setTasks(set).flush()
         return id
     }
 
     override fun deleteTask(taskId: Int): Boolean {
         checkThread()
-        return lazyTaskList.value.removeIf { taskId == it.id }
+        val set = sp.getTasks(true).toMutableSet()
+        val success = set.removeIf { taskId == it.id }
+        if (success) {
+            sp.setTasks(set).flush()
+        }
+        return success
     }
 
     private fun checkThread() {
