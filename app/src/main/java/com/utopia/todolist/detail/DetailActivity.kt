@@ -7,19 +7,17 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.utopia.todolist.R
-import com.utopia.todolist.datasource.DataSource
 import com.utopia.todolist.datasource.IDataSource
+import com.utopia.todolist.datasource.NetDataSource
 import com.utopia.todolist.datasource.Task
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class DetailActivity : AppCompatActivity() {
-    private val dataSource: IDataSource = DataSource.instance
+    private val dataSource: IDataSource = NetDataSource.instance
     private val itemId: Int
-        get() {
-            return intent.getIntExtra(EXTRA_TASK_ID, ID_INVALID)
-        }
+        get() = intent.getIntExtra(EXTRA_TASK_ID, ID_INVALID)
 
     private lateinit var etTitle: EditText
     private lateinit var etContent: EditText
@@ -54,6 +52,7 @@ class DetailActivity : AppCompatActivity() {
     }
 
     private fun fetchData(taskId: Int) {
+        if (taskId < 0) return
         GlobalScope.launch(Dispatchers.IO) io@{
             val task = dataSource.queryTaskById(taskId)
             GlobalScope.launch(Dispatchers.Main) main@{
@@ -79,9 +78,12 @@ class DetailActivity : AppCompatActivity() {
             Toast.makeText(this, "内容不合法", Toast.LENGTH_SHORT).show()
             return
         }
-        val task = Task(itemId, title, content)
         GlobalScope.launch(Dispatchers.IO) {
-            val id = dataSource.updateTask(task)
+            val id =
+                if (itemId < 0)
+                    dataSource.insertTask(title, content)
+                else
+                    dataSource.updateTask(Task(itemId, title, content))
             GlobalScope.launch(Dispatchers.Main) main@{
                 if (id < 0) {
                     val msg = "update task fail"

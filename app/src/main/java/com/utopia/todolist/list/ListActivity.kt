@@ -10,14 +10,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.utopia.todolist.R
-import com.utopia.todolist.datasource.DataSource
+import com.utopia.todolist.datasource.NetDataSource
 import com.utopia.todolist.detail.DetailActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class ListActivity : AppCompatActivity() {
-    private val dataSource = DataSource.instance
+    private val dataSource = NetDataSource.instance
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

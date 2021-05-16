@@ -1,3 +1,12 @@
 package com.utopia.todolist.datasource
 
-data class Task(val id: Int, val name: String, val content: String)
+import com.google.gson.annotations.SerializedName
+
+data class Task(
+    @SerializedName("id")
+    val id: Int,
+    @SerializedName("name")
+    val name: String,
+    @SerializedName("content")
+    val content: String
+)
