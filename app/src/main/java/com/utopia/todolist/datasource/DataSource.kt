@@ -43,7 +43,7 @@ class DataSource private constructor() : IDataSource {
     override fun insertTask(name: String, content: String): Int {
         checkThread()
         val set = sp.getTasks(true).toMutableSet()
-        val max = set.map(Task::id).max()
+        val max = set.map(Task::id).maxOrNull()
         val id = (max ?: -1) + 1
         val task = Task(id, name, content)
         set.add(task)
