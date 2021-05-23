@@ -6,10 +6,7 @@ import com.utopia.todolist.datasource.sp.SP
 import com.utopia.todolist.debugCheck
 
 @WorkerThread
-class DataSource private constructor() : IDataSource {
-    companion object {
-        val instance = DataSource()
-    }
+class LocalDataSourceSpImpl : IDataSource {
 
     private val sp = SP()
 

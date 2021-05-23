@@ -12,11 +12,8 @@ import okhttp3.logging.HttpLoggingInterceptor
 import org.json.JSONObject
 import java.lang.reflect.Type
 
-class NetDataSource : IDataSource {
-    companion object {
-        val instance = NetDataSource()
-        private val GSON = Gson()
-    }
+class RemoteDataSource : IDataSource {
+    private val gson = Gson()
 
     private val client: OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
@@ -56,7 +53,7 @@ class NetDataSource : IDataSource {
     private fun <T> getResult(request: Request, type: Type): T? {
         val response = client.newCall(request).execute()
         val json = response.body?.string() ?: return null
-        return GSON.fromJson<T>(json, type)
+        return gson.fromJson<T>(json, type)
     }
 
     override fun updateTask(task: Task): Int {
@@ -69,7 +66,7 @@ class NetDataSource : IDataSource {
 
     private fun getJsonRequestBody(task: Task): RequestBody {
         val mediaType = "application/json;charset=utf-8".toMediaTypeOrNull()
-        return GSON.toJson(task).toString().toRequestBody(mediaType)
+        return gson.toJson(task).toString().toRequestBody(mediaType)
     }
 
     override fun insertTask(name: String, content: String): Int {

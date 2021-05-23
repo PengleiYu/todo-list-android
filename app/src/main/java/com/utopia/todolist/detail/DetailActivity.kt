@@ -7,15 +7,15 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.utopia.todolist.R
+import com.utopia.todolist.datasource.DataSourceProvider
 import com.utopia.todolist.datasource.IDataSource
-import com.utopia.todolist.datasource.NetDataSource
 import com.utopia.todolist.datasource.Task
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class DetailActivity : AppCompatActivity() {
-    private val dataSource: IDataSource = NetDataSource.instance
+    private val dataSource: IDataSource = DataSourceProvider.remoteDataSource
     private val itemId: Int
         get() = intent.getIntExtra(EXTRA_TASK_ID, ID_INVALID)
 
